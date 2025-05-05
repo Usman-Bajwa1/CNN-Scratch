@@ -2,12 +2,12 @@ import numpy as np
 
 class Conv:
 
-    def __init__(self, pad = 2, stride = 1):
+    def __init__(self, pad = 1, stride = 1):
  
         self.pad = pad
-        self.stride  = stride 
+        self.stride = stride 
 
-    def __call__(self, x, W):
+    def forward(self, x, W, b):
         
         pad = self.pad
         stride = self.stride
@@ -29,25 +29,62 @@ class Conv:
                         region_sum = 0
                         for ic in range(in_channel):
                             region = x_pad[bs, ic, i*stride: i *stride + kh, j*stride: j*stride + kw]
-                            region_sum += np.sum(region * W[oc, ic])
-                        print(region_sum)
-                        output[bs, oc, i, j] = region_sum
+                            region_sum += np.sum(region * W[oc, ic]) 
+            
+                        output[bs, oc, i, j] = region_sum + b[oc]
         
-        cache = (x, W,)
+        cache = (x, W, b, stride, pad)
         return output, cache
     
-    def backward():
-        pass
+    def backward(self, dout, cache):
 
+        x, W, b, stride, pad =  cache
 
+        batch_size, out_channel, out_h, out_w = dout.shape 
+        _, in_channel, h, w = x.shape
+        _, _, kh, kw = W.shape
+
+        dx = np.zeros_like(x)
+        dW = np.zeros_like(W)
+        db = np.zeros_like(b)
+
+        dx_pad = np.pad(dx, ((0,0),(0,0),(pad,pad),(pad,pad)), 'constant')
+        x_pad = np.pad(x, ((0,0),(0,0),(pad,pad),(pad,pad)), 'constant')
+
+        db = np.sum(dout, axis = (0, 2,3))
+
+        for bs in range(batch_size):
+            for oc in range(out_channel):
+                for i in range(out_h):
+                    for j in range(out_w):
+                        for ic in range(in_channel):
+                            region =  x_pad[bs,ic, i*stride:i*stride+kh, j*stride: j*stride +kw]
+
+                            dW[oc, ic] += region * dout[bs, oc, i, j]
+                            dx_pad[bs, ic, i*stride: i*stride + kh, j*stride:j*stride + kw] += W[oc,ic] * dout[bs, oc, i, j]
+
+        dx = dx_pad[:,:,pad:pad + h, pad:pad+w]
+
+        return dx, dW, db
+    
+
+    
+    
+ 
         
 
 
-#fil = np.random.rand(3,3,3,3)
-#x = np.random.rand(4,3,5,5)
-#
-#model = Conv(stride= 2)
-#a = model(x,fil)
-#print(a.shape)
+x = np.random.rand(4,3,5,5)
+fil = np.random.rand(3,3,3,3)
+b = np.random.rand(3,)
 
+dout = np.random.rand(4,3,5,5)
 
+model = Conv()
+out,cache = model.forward(x,fil,b)
+dx, dW, db = model.backward(dout , cache)
+
+print(f"shape of forward pass output: {out.shape}")
+print(f"shape of dx for backward pass: {dx.shape}")
+print(f"shape of dW for backward pass: {dW.shape}")
+print(f"shape of db for backward pass: {db.shape}")
