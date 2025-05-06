@@ -1,7 +1,7 @@
 import numpy as np 
 
 
-def relu(x):
+def relu_forward(x):
     out = None
     out  = np.maximum(0,x)
     relu_cache = x

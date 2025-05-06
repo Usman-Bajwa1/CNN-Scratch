@@ -1,8 +1,10 @@
 import numpy as np 
 
 
-def max_pool_forward(x, kernel= (2,2), stride = 1):
+def max_pool_forward(x, conv_param):
 
+    kernel = conv_param["kernel"]
+    stride = conv_param["stirde"]
     batch_size, in_channel, h, w = x.shape 
     kh, kw= kernel
 
@@ -17,7 +19,7 @@ def max_pool_forward(x, kernel= (2,2), stride = 1):
                 for j in range(out_w):
                     region = x[bs, ic, i*stride:i*stride + kh, j*stride:j*stride + kw]
                     output[bs, ic, i, j] = np.max(region)
-    cache = x, kernel, stride 
+    cache = (x, kernel, stride) 
 
     return output, cache 
 

@@ -1,6 +1,6 @@
 import numpy as np 
 
-def forward(x, W, b, conv_param):
+def conv_forward(x, W, b, conv_param):
         
     pad = conv_param["pad"]
     stride = conv_param["stride"]
@@ -24,7 +24,7 @@ def forward(x, W, b, conv_param):
     cache = (x, W, b, stride, pad)
     return output, cache
     
-def backward(dout, cache):
+def conv_backward(dout, cache):
 
     x, W, b, stride, pad =  cache
     batch_size, out_channel, out_h, out_w = dout.shape 
