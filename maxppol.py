@@ -4,7 +4,7 @@ import numpy as np
 def max_pool_forward(x, conv_param):
 
     kernel = conv_param["kernel"]
-    stride = conv_param["stirde"]
+    stride = conv_param["stride"]
     batch_size, in_channel, h, w = x.shape 
     kh, kw= kernel
 

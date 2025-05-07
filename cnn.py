@@ -23,10 +23,10 @@ class ThreeLayerConvNet():
         self.params['W1'] = np.random.randn(num_filters, C, filter_size, filter_size) * weight_scale
         self.params['b1'] = np.zeros(num_filters)
 
-        H_pool = H // 2
-        H_width = W // 2
+        H_pool = 15
+        H_width = 15
 
-        self.params['W2'] = np.random.randn(num_filters*H_pool,H_width) * weight_scale
+        self.params['W2'] = np.random.randn(num_filters*H_pool*H_width, hidden_dim) * weight_scale
         self.params['b2'] = np.zeros(hidden_dim)
 
         self.params['W3'] = np.random.randn(hidden_dim,num_classes) * weight_scale
@@ -50,6 +50,7 @@ class ThreeLayerConvNet():
         
         # Forward pass
         conv_out, conv_cache = conv_relu_maxpool_forward(X, W1, b1, conv_param, pool_param)
+        print(f"shape of conv_out {conv_out.shape}, shape of W2: {W2.shape}, shape of b2: {b2.shape}")
         fc_out, fc_relu_cache = affine_relu_forward(conv_out, W2, b2)
         scores, fc_cache = affine_forward(fc_out, W3, b3)
 
@@ -58,6 +59,7 @@ class ThreeLayerConvNet():
         
         loss, grads = 0, {}
 
+        #Backward Pass 
         loss, dscores = softmax_loss(scores, y)
 
         loss += 0.5 * self.reg * (

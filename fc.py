@@ -37,6 +37,7 @@ def softmax_loss(x, y):
     dx = softmax_prob / num_train 
 
     return loss, dx 
+
  
 
     
